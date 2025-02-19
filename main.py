@@ -1,6 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
 import csv
+import asyncio
+import aiohttp
+import time
+
+async def fetch_html(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            return await response.text()
 
 def scrape_book(book_url):
     """Fonction permettant d'extraire les données d'un livre à partir de l'URL produit"""
@@ -24,13 +32,13 @@ def scrape_book(book_url):
     return [book_url, universal_product_code, title, price_including_tax,
             price_excluding_tax, number_available, category]
 
-def get_books_urls_from_category(category_url, books_urls = None):
+async def get_books_urls_from_category(category_url, books_urls = None):
     """Fonction récursive permettant de récupérer les URLS de tous les livres d'une catégorie"""
 
     if books_urls is None:
         books_urls = []
-    response = requests.get(category_url)
-    soup = BeautifulSoup(response.text, 'html.parser')
+    text = await fetch_html(category_url)
+    soup = BeautifulSoup(text, 'html.parser')
 
     category = soup.find("h1").string
 
@@ -43,27 +51,69 @@ def get_books_urls_from_category(category_url, books_urls = None):
 
     if next_page:
         next_page_url = category_url.rsplit("/", 1)[0] + "/" + next_page["href"]
-        return get_books_urls_from_category(next_page_url, books_urls)
+        return await get_books_urls_from_category(next_page_url, books_urls)
 
     print(f"Il y a {len(books_urls)} livres dans la catégorie {category}.")
     return books_urls
 
-# Scrape de tous les livres d'une catégorie donnée
-category_url = "http://books.toscrape.com/catalogue/category/books/travel_2/index.html" # Travel
-#category_url = "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html" # Mystery
-list_category_urls = get_books_urls_from_category(category_url)
+def write_books_data(list_category_urls):
+    books_data = []
+    for url in list_category_urls:
+        books_data.append(scrape_book(url))
 
-books_data = []
-for url in list_category_urls:
-    books_data.append(scrape_book(url))
+    # Sauvegarde des données dans un fichier CSV
+    filename = "books_data.csv"
+    headers = ["Page url", "UPC", "Title", "Price Including Tax", "Price Excluding Tax", "Availability", "Category"]
 
-# Sauvegarde des données dans un fichier CSV
-filename = "books_data.csv"
-headers = ["Page url", "UPC", "Title", "Price Including Tax", "Price Excluding Tax", "Availability", "Category"]
+    with open(filename, "w") as file:
+        writer = csv.writer(file)
+        writer.writerow(headers)
+        writer.writerows(books_data)
 
-with open(filename, "w") as file:
-    writer = csv.writer(file)
-    writer.writerow(headers)
-    writer.writerows(books_data)
+    print(f"Données extraites et sauvegardées dans {filename}")    
 
-print(f"Données extraites et sauvegardées dans {filename}")
+
+async def main():
+    start_time = time.time()
+    urls = [
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html"
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+    ]
+    tasks = [get_books_urls_from_category(url) for url in urls]
+    res = await asyncio.gather(*tasks)
+    print(res)
+    end_time = time.time()
+    print(f"⚡ Exécution : {end_time - start_time:.2f} sec")
+
+asyncio.run(main())
+
+
+
