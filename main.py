@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import csv
+import time
 
 def scrape_book(book_url):
     """Fonction permettant d'extraire les données d'un livre à partir de l'URL produit"""
@@ -51,9 +52,45 @@ def get_books_urls_from_category(category_url, books_urls = None):
 # Scrape de tous les livres d'une catégorie donnée
 category_url = "http://books.toscrape.com/catalogue/category/books/travel_2/index.html" # Travel
 #category_url = "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html" # Mystery
-list_category_urls = get_books_urls_from_category(category_url)
+urls = [
+    "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html"
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+        "http://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+        "http://books.toscrape.com/catalogue/category/books/mystery_3/index.html",
+]
+start_time = time.time()
+list_category_urls = [get_books_urls_from_category(url) for url in urls]
+print(list_category_urls)
+end_time = time.time()
+print(f"⚡ Exécution asynchrone : {end_time - start_time:.2f} sec")
 
-books_data = []
+""" books_data = []
 for url in list_category_urls:
     books_data.append(scrape_book(url))
 
@@ -66,4 +103,4 @@ with open(filename, "w") as file:
     writer.writerow(headers)
     writer.writerows(books_data)
 
-print(f"Données extraites et sauvegardées dans {filename}")
+print(f"Données extraites et sauvegardées dans {filename}") """
